@@ -11,13 +11,27 @@ use strum::IntoEnumIterator;
 impl PackageManager {
     /// Whether the line contains a package manager.
     pub fn detects_line(line: &str) -> bool {
-        Self::from_line(line).is_some()
+        Self::single_from_line(line).is_some()
     }
 
-    /// Try to find the proper package manager corresponding to a line.
-    pub fn from_line(line: &str) -> Option<Self> {
+    /// Try to find the best matching package manager corresponding to a line.
+    pub fn single_from_line(line: &str) -> Option<Self> {
         // Iterate over all enum variations
         Self::iter().find(|manager| {
+            // Iterate over all commands
+            manager
+                .os_commands()
+                .into_iter()
+                // Find the command that's in the file, use an extra space to only match full
+                // package names
+                .any(|command| Self::line_contains_command(line, &command))
+        })
+    }
+
+    /// Get all possible package manager corresponding to a line.
+    pub fn from_line_iter(line: &str) -> impl Iterator<Item = Self> + '_ {
+        // Iterate over all enum variations
+        Self::iter().filter(move |manager| {
             // Iterate over all commands
             manager
                 .os_commands()
@@ -67,7 +81,7 @@ impl PackageManager {
         // Try all different commands
         self.os_commands()
             .iter()
-            .map(|command| {
+            .flat_map(|command| {
                 // If the command can't be found in this line just continue
                 if !Self::line_contains_command(line, command) {
                     return vec![];
@@ -130,7 +144,7 @@ impl PackageManager {
                         // Loop over the arguments handling flags in a special way
                         while let Some(arg) = args_iter.next() {
                             // Stop when a flag is found that invalidate the command
-                            if self.has_invalidating_flag(&arg) {
+                            if self.has_invalidating_flag(arg) {
                                 return vec![];
                             }
 
@@ -140,7 +154,7 @@ impl PackageManager {
                                 .expect("Arg string is suddenly zero bytes");
 
                             if first_char == '-' || first_char == '+' {
-                                self.handle_capture_flags(&arg, &mut args_iter, &mut catched_flags);
+                                self.handle_capture_flags(arg, &mut args_iter, &mut catched_flags);
 
                                 // If it's a flag containing an extra arguments besides it skip one
                                 if self.known_flags_with_values().contains(&arg) {
@@ -165,7 +179,6 @@ impl PackageManager {
                     None => vec![],
                 }
             })
-            .flatten()
             .collect()
     }
 
@@ -187,16 +200,15 @@ impl PackageManager {
 
     /// Get OS specific commands.
     #[cfg(not(target_os = "windows"))]
-    fn os_commands(&self) -> Vec<&str> {
-        self.commands()
+    fn os_commands(&self) -> Vec<String> {
+        self.commands().into_iter().map(|s| s.to_string()).collect()
     }
 
     /// Whether the command has an invalidating flag.
     fn has_invalidating_flag(self, arg: &str) -> bool {
         self.invalidating_flags()
             .iter()
-            .find(|capture| *capture == &arg)
-            .is_some()
+            .any(|capture| capture == &arg)
     }
 
     /// Handle the iterator's flags using the different options as defined in the package managers.

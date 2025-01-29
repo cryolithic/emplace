@@ -56,7 +56,6 @@ where
         MultiSelect::new()
             .items(&colored_selection)
             .with_prompt("Select packages to sync")
-            .paged(true)
             .interact()?
     };
 
@@ -101,16 +100,15 @@ where
 {
     // Filter actual lines
     lines
-        .filter_map(|x| x.ok())
+        .map_while(Result::ok)
         .map(|x| x.split_whitespace().join(" "))
         // Remove duplicates
         .sorted()
         .dedup()
         // Get an iterator over all the matches in the line
         .map(|x| Packages::from_line(&x))
-        .map(|packages| packages.into_iter())
         // Make it a big list
-        .flatten()
+        .flat_map(|packages| packages.into_iter())
         .collect()
 }
 
