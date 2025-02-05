@@ -131,6 +131,42 @@
         "bug",
         "ideas"
       ]
+    },
+    {
+      "login": "cryolithic",
+      "name": "cryolithic",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11305845?v=4",
+      "profile": "https://github.com/cryolithic",
+      "contributions": [
+        "platform"
+      ]
+    },
+    {
+      "login": "Qelxiros",
+      "name": "Jeremy Smart",
+      "avatar_url": "https://avatars.githubusercontent.com/u/48220588?v=4",
+      "profile": "https://github.com/Qelxiros",
+      "contributions": [
+        "platform"
+      ]
+    },
+    {
+      "login": "chenrui333",
+      "name": "Rui Chen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1580956?v=4",
+      "profile": "http://chenrui.dev",
+      "contributions": [
+        "maintenance"
+      ]
+    },
+    {
+      "login": "zamazan4ik",
+      "name": "Alexander Zaitsev",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7355383?v=4",
+      "profile": "https://zamazan4ik.github.io",
+      "contributions": [
+        "maintenance"
+      ]
     }
   ],
   "contributorsPerLine": 7,
@@ -138,5 +174,7 @@
   "projectOwner": "tversteeg",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "skipCi": true
+  "skipCi": true,
+  "commitType": "docs",
+  "commitConvention": "angular"
 }
