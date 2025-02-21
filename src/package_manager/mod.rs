@@ -4,6 +4,7 @@ pub mod test_macro;
 mod apt;
 mod brew;
 mod cargo;
+mod cargo_binstall;
 mod chocolatey;
 mod dnf;
 mod gem;
@@ -12,6 +13,7 @@ mod guix;
 mod nix;
 mod npm;
 mod pacman;
+mod paru;
 mod pip;
 mod pip3;
 mod pkg;
@@ -25,6 +27,7 @@ mod zypper;
 pub use apt::Apt;
 pub use brew::Brew;
 pub use cargo::Cargo;
+pub use cargo_binstall::CargoBinstall;
 pub use chocolatey::Chocolatey;
 pub use dnf::Dnf;
 pub use gem::Gem;
@@ -33,6 +36,7 @@ pub use guix::Guix;
 pub use nix::Nix;
 pub use npm::Npm;
 pub use pacman::Pacman;
+pub use paru::Paru;
 pub use pip::Pip;
 pub use pip3::Pip3;
 pub use pkg::Pkg;
@@ -56,6 +60,7 @@ pub enum PackageManager {
     Apt,
     Brew,
     Cargo,
+    CargoBinstall,
     Chocolatey,
     Dnf,
     Gem,
@@ -64,6 +69,7 @@ pub enum PackageManager {
     Nix,
     Npm,
     Pacman,
+    Paru,
     Pip,
     Pip3,
     Pkg,
@@ -94,6 +100,7 @@ pub trait PackageManagerTrait {
     fn needs_root(self) -> bool;
 
     /// Check whether a package is already installed.
+    #[allow(clippy::wrong_self_convention)]
     fn is_installed(self, package: &str) -> PackageInstalledMethod;
 
     /// A list of known command line flags that accept an extra argument which could be the name of

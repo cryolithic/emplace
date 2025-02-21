@@ -1,6 +1,6 @@
 [package]
 name = "emplace"
-version = "1.4.2-alpha.0"
+version = "1.6.0"
 authors = ["Thomas Versteeg <thomas@versteeg.email>"]
 description = "Command-line tool to mirror installed software on multiple machines."
 edition = "2018"
@@ -16,27 +16,28 @@ is-it-maintained-issue-resolution = { repository = "tversteeg/emplace" }
 is-it-maintained-open-issues = { repository = "tversteeg/emplace" }
 
 [dependencies]
-anyhow = { version = "1.0.40", features = ["backtrace"] }
-bugreport = "0.3.0"
-clap = { version = "3.0.0-beta.2", features = ["suggestions", "color", "wrap_help"] }
-clap_generate = "3.0.0-beta.2"
-colored = "2.0.0"
-console = "0.14.1"
-dialoguer = "0.8.0"
-dirs = "3.0.2"
-enum_dispatch = "0.3.6"
-itertools = "0.10.0"
-log = "0.4.14"
-ron = "0.6.4"
-run_script = "0.7.0"
-serde = { version = "1.0.125", features = ["derive"] }
-simplelog = "0.10.0"
-strum = "0.20.0"
-strum_macros = "0.20.1"
-toml = "0.5.8"
+anyhow = { version = "1.0.82", features = ["backtrace"] }
+bugreport = { version = "0.5.0", default-features = false, features = ["git_hash", "format_markdown"] }
+camino = "1.1.6"
+clap = { version = "4.5.4", features = ["env", "cargo"] }
+clap_complete = "4.5.2"
+colored = "3.0.0"
+console = "0.15.8"
+dialoguer = "0.11.0"
+dirs = "6.0.0"
+enum_dispatch = "0.3.13"
+itertools = "0.14.0"
+log = "0.4.21"
+ron = "0.8.1"
+run_script = "0.11.0"
+serde = { version = "1.0.200", features = ["derive"] }
+simplelog = "0.12.2"
+strum = "0.27.0"
+strum_macros = "0.27.0"
+toml = "0.8.12"
 
 [dev-dependencies]
-indoc = "1.0.3"
+indoc = "2.0.5"
 cargo-husky = { version = "1.5.0", features = ["precommit-hook", "run-cargo-check", "run-cargo-clippy", "run-cargo-fmt"] }
 
 [package.metadata.deb]
@@ -55,3 +56,6 @@ assets = [
 	["target/release/emplace", "usr/bin/", "755"],
 	["README.md", "usr/share/doc/emplace/README", "644"],
 ]
+
+[profile.release]
+lto = true
