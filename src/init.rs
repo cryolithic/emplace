@@ -1,12 +1,10 @@
-use crate::{config::Config, public_clap_app};
-use anyhow::{anyhow, Context, Result};
-use clap_generate::generators::{Bash, Fish, Zsh};
-use std::{env, io, path::Path};
+use crate::public_clap_app;
+use anyhow::{Context, Result};
+use camino::Utf8Path;
+use clap_complete::shells::{Bash, Fish, Zsh};
+use std::{env, io};
 
-pub fn init_main<P>(config_path: P, shell_name: &str) -> Result<()>
-where
-    P: AsRef<Path>,
-{
+pub fn init_main(config_path: &Utf8Path, shell_name: &str) -> Result<()> {
     let exe_path = env::current_exe()
         .context("getting executable path for initial configuration")?
         .into_os_string()
@@ -30,30 +28,21 @@ where
             .replace(
                 "## EMPLACE_CONFIG_PATH ##",
                 config_path
-                    .as_ref()
-                    .canonicalize()
-                    // When canonicalizing path failed use the default path
-                    .unwrap_or(Config::default_path())
-                    .to_str()
-                    .ok_or_else(|| {
-                        anyhow!(
-                            "Could not convert path {:?} to string",
-                            config_path.as_ref()
-                        )
-                    })?,
+                    .canonicalize_utf8()
+                    // Use the un-canonicalized form if it fails
+                    .unwrap_or_else(|_| config_path.to_path_buf())
+                    .as_str()
             )
     );
 
     // Print the completions
     match shell_name {
         "bash" => {
-            clap_generate::generate::<Bash, _>(&mut public_clap_app(), "emplace", &mut io::stdout())
+            clap_complete::generate(Bash, &mut public_clap_app(), "emplace", &mut io::stdout())
         }
-        "zsh" => {
-            clap_generate::generate::<Zsh, _>(&mut public_clap_app(), "emplace", &mut io::stdout())
-        }
+        "zsh" => clap_complete::generate(Zsh, &mut public_clap_app(), "emplace", &mut io::stdout()),
         "fish" => {
-            clap_generate::generate::<Fish, _>(&mut public_clap_app(), "emplace", &mut io::stdout())
+            clap_complete::generate(Fish, &mut public_clap_app(), "emplace", &mut io::stdout())
         }
         _ => (),
     };

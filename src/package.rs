@@ -89,7 +89,7 @@ impl Package {
 
     /// Check if this package is already installed.
     pub fn is_installed(&self) -> Result<bool> {
-        self.source.package_is_installed(&self)
+        self.source.package_is_installed(self)
     }
 
     /// Check if the package manager can be found.
@@ -126,20 +126,12 @@ impl Packages {
             .split(|c| c == ';' || c == '|' || c == '&' || c == '\r' || c == '\n')
             // Then try to find the proper package manager for each line, this also filters out
             // lines that are not related to the package manager
-            .filter_map(|line| {
-                // Filter out matches with less than 4 characters, it's impossible to install a
-                // package that we can catch like that
-                if line.len() < 4 {
-                    return None;
-                }
-
-                // Attempt to find a matching package manager with the line
-                PackageManager::from_line(line).map(|manager| (line, manager))
+            .flat_map(|line| {
+                // Attempt to find a matching package managers with the line
+                PackageManager::from_line_iter(line).map(move |manager| (line, manager))
             })
             // Parse the packages in the line with the package manager supplied
-            .map(|(line, package_manager)| package_manager.catch(line))
-            // Create a long list of the list of lists
-            .flatten()
+            .flat_map(|(line, package_manager)| package_manager.catch(line))
             .collect();
 
         Self(lines)
@@ -158,12 +150,8 @@ impl Packages {
 
     /// Remove all packages that have been saved already.
     pub fn filter_saved_packages(&mut self, old: &Packages) {
-        self.0 = self
-            .0
-            .iter()
-            .filter(|package| !old.iter().any(|old_package| *package == old_package))
-            .cloned()
-            .collect();
+        self.0
+            .retain(|package| !old.iter().any(|old_package| package == old_package));
     }
 
     /// Remove all duplicate packages.
